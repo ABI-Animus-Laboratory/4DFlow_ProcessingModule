@@ -8,5 +8,5 @@ function params = init_params(data_dir)
     params.rerun=0;
     params.FlowType='Local';
     params.subject=[];
-    params.PWV=[1 1 1 1 1];
+    params.PWV=[1 1 1 1 1 1];
 end
