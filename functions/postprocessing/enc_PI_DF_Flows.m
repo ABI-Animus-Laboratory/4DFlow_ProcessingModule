@@ -34,7 +34,7 @@ function [DF,PI,Flows,FlowErr,D] = enc_PI_DF_Flows(PI_scat,data_struct,Labels,pa
             [idx2,~]=find(Data(:,5)==LOC);
             VesLoc=Data(idx2,:);
             [idx3,~]=find(PI_scat(:,3,i)==VesLoc(6));
-            StartPI(i,:)=abs(PI_scat(idx3,:,i));
+            StartPI(i,:)=mean(abs(PI_scat((idx3-2):(idx3+2),:,i)));
             PI(1,roots(i))=abs(PI_scat(idx3,2,i));
             D(1,roots(i))=PI_scat(idx3,1,i);
             switch params.FlowType
