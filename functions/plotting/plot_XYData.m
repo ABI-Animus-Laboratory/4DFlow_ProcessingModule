@@ -7,7 +7,7 @@ function [] = plot_XYData(xData,yData,Col,MrkrSz,mdlPlot,yLIMS,xLIMS,xTitle,yTit
     [mdl,~] = fit_linXYData(xData,yData,[]);
     Slope=table2array(mdl.Coefficients(2,:));
     R2=mdl.Rsquared.Adjusted;
-    text(0.25,0.08,strcat('R^2=',num2str(R2,'%0.2f'),',p<',num2str(Slope(4),'%1.3f')),'Units','normalized','FontSize',6)
+    text(0.25,1.08,strcat('R^2=',num2str(R2,'%0.2f'),',p<',num2str(Slope(4),'%1.3f')),'Units','normalized','FontSize',6)
 
     if ~isempty(yLIMS) 
         minY=yLIMS(1);maxY=yLIMS(2);

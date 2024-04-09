@@ -20,11 +20,13 @@ function [] = plot_SubjectQualityAndPI(ResCell,ExCell,thresh,ResSlope,PIs,vararg
         end
         if ID == 0
             ExVals=ExCell{i}; %Now Use Excluded Values
+            ExVals(:,4)=((ExVals(:,4)-2.5)./1.5);
             scatter(ExVals(:,1),ExVals(:,4),MrkrSz,'MarkerFaceColor','k','MarkerEdgeColor','k','MarkerFaceAlpha',0.2,'MarkerEdgeAlpha',0)
             hold on
             Vals=ResCell{i}; %Now Use Thresholded Values
+            Vals(:,4)=((Vals(:,4)-2.5)./1.5);
             scatter(Vals(:,1),Vals(:,4),MrkrSz,'MarkerFaceColor','b','MarkerFaceAlpha',.5,'MarkerEdgeAlpha',0)
-            lgnd=legend(strcat('Q<',num2str(thresh)),strcat('Q>',num2str(thresh)));
+            lgnd=legend(strcat('Q<',num2str(thresh-thresh)),strcat('Q>',num2str(thresh-thresh)));
             set(lgnd,'Location','SouthWest','FontSize',FSs)
         else
             Vals=ResCell{i-3}; %Now Use Thresholded Values
@@ -51,7 +53,8 @@ function [] = plot_SubjectQualityAndPI(ResCell,ExCell,thresh,ResSlope,PIs,vararg
         end
         if i<4
             title(TitleNames{i},'FontSize',FSl,'FontWeight','Bold')
-            ylim([0 4]) %Quality y limits
+            ylim([-1 1]) %Quality y limits
+            %ylim([0 4]) %Quality y limits
         else
             ylim([0 1.5]) %Pulsatility y limits
         end
