@@ -1,4 +1,4 @@
-function [PWV,SE]=enc_PWV_XCor(Vals,data_struct,Labels,time,tag,A,params,root)
+function [PWV,SE,Raw,Ex]=enc_PWV_XCor(Vals,data_struct,Labels,time,tag,A,params,root)
     Flows=data_struct.flowPulsatile_val;
     BranchList=data_struct.branchList;
     Qual=data_struct.StdvFromMean;
@@ -84,30 +84,19 @@ function [PWV,SE]=enc_PWV_XCor(Vals,data_struct,Labels,time,tag,A,params,root)
     TF = isoutlier(ttu,'gesd');
     D2=D(TF);
     ttu2=ttu(TF);
+    W2=W(TF);
     D(TF)=[];
     ttu(TF)=[];
     W(TF)=[];
     %% Fit PWV
+    Raw=[D,ttu,W];
+    Ex=[D2,ttu2,W2];
     [mdl,~] = fit_linXYData(D,ttu,W);
     pwv = 1./table2array(mdl.Coefficients(2,1));
     SE = 1./table2array(mdl.Coefficients(2,2));
-    if (pwv > 0) && (pwv < 30)
+    if (pwv > 0)% && (pwv < 30)
         PWV = pwv;
     else
-        PWV = 0;
-    end
-    Slope=table2array(mdl.Coefficients(2,:));
-    R2=mdl.Rsquared.Adjusted;
-    if params.PltFlag==1
-        subplot(1,3,root)
-        scatter(D,ttu,'o','MarkerFaceColor','c','MarkerfaceAlpha',0.2,'MarkerEdgeAlpha',0.3,'MarkerEdgeColor','k')
-        hold on
-        scatter(D2,ttu2,'r*','MarkerEdgeAlpha',0.3)
-        hold on
-        plot([min(D) max(D)], table2array(mdl.Coefficients(2,1)).*[min(D) max(D)]+table2array(mdl.Coefficients(1,1)),'k-.','LineWidth',2);
-        xlabel('d (m)')
-        ylabel('XCor time (s)')
-        text(0.1,0.9,strcat('R^2=',num2str(R2,'%0.2f'),',p<',num2str(Slope(4),'%1.3f')),'Units','normalized','FontSize',6)
-        ylim([-0.5 0.5])
+        PWV = -1;
     end
 end

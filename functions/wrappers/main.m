@@ -5,10 +5,11 @@
 % This function is designed to run assuming you store your data in BIDS 
 % format. If not, modify to run a folder or what not, BIDS is much easier
 clear;clc;
-path2bids='C:\Users\sdem348\Desktop\Dempsey2023MultiRes_Cohort';
+path2bids='C:\Users\sdem348\Desktop\';
 params=init_params(path2bids);
 params.SaveData=1;%Save Interim Data
 params.PltFlag=1; %Make plots
+params.PWV=[1 1 1 1 1 1]; %Compute all PWVs
 Results=struct;
 for i=1:1
     subject=strcat('sub-',num2str(i,'%03.0f'));
@@ -22,7 +23,7 @@ for i=1:1
         [DF,PI,LocFlows,FlowErr,D] = enc_PI_DF_Flows(PI_scat,data_struct,Labels,path2data,params);
         [Area] = enc_VesArea(PI_scat,data_struct,Labels,path2data,params);
         [time,Flow,FlowErrVes]=enc_HQVesselFlows(data_struct,Labels,params);
-        [PWV,R]=enc_PWV(data_struct,PI_scat,time,Labels,params);
+        [PWV,R,~]=enc_PWV(data_struct,PI_scat,time,Labels,params);
         Results.PITC(i,:)=PITC(1,:);
         Results.PI(i,:)=[globPI PITC(end,:) PI];
         Results.DF(i,:)=DF;
