@@ -28,16 +28,16 @@ Run paramMap as per QVT, and follow standard background correction. If you are l
 
 ![Figure2_Interaction](https://github.com/ABI-Animus-Laboratory/QVTplus/assets/108192400/c52a5d6a-3cee-49e1-9559-9ca4bcfbbbd4)
 
-**NOTE:** It you wish to automatically process root dependant damping factor as well, fill out the entire table including label numbers.
+**NOTE:** It you wish to automatically process root dependant damping factor as well, fill out the entire table for all vessels including label numbers.
 
-Run the separate wrapper function "mainPITC.m" which will ask you to point to where the subject data is saved. It will take the label table and data and begin processing $pi_{tc}$. Eventually, an interactive figure will open which directs you to input a search distance for vessels, appropriately move the slider under the entire vasculature is corrected. 
+In functions under wrappers, run "main.m" which will ask you to point to where the subject data is saved. Currently, the library supports batching so long as the data is organised in a BIDS style, ie, QVT.mats are saved in \derivatives\QVT\sub-001,sub--2, etc. Successful organisation  will load your QVT data and labels and begin processing $pi_{tc}$. Eventually, an interactive figure will open which directs you to input a search distance for vessels, appropriately move the slider under the entire vasculature is corrected. 
 
 ![example](https://github.com/ABI-Animus-Laboratory/QVTplus/assets/108192400/2a2fc2c1-38bb-49a4-b477-0829f57751e7)
 
 
 **NOTE:** Be conservative with the distance as large distances may cause erroneous connections. If the slider is not working correctly, please contact below as this is in development as we get more 4D flow cases.
 
-Once a search distance has been input, click done and the rest of the measurements will proceed automatically using Q weights by first connecting the branches and then assigning pulsatility distance (see manuscript for details). The results will then save to the input directory.
+Once a search distance has been input, click done and the rest of the measurements will proceed automatically using weights by first connecting the branches and then assigning pulsatility distance (see manuscript for details). The results will then save to the derivatives subject directory.
 
 **Note:** Ongoing functionality is being added including efforts for reproducability by desigining a parameters structure fed into all algorithms. This includes optionality to plot results as they are processed similar to the manuscript plots for each subject, these images will save to respective directories. 
 
