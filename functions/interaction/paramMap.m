@@ -288,6 +288,7 @@ hold off
 caxis([min(cdata) max(cdata)]);
 cbar = colorbar;
 caxis([0 0.8*max(flowPerHeartCycle_val(:))])
+caxis([0 8]) %CHANGED
 set(get(cbar,'xlabel'),'string','Flow (mL/s)','fontsize',16,'Color','white');
 set(cbar,'FontSize',16,'color','white');
 ax = gca;
@@ -367,6 +368,7 @@ switch str{val}
         Labeltxt = {'Flow: ',  ' mL/s';'Average: ',' mL/s'};
         hscatter.CData = flowPerHeartCycle_val;
         caxis(fig.CurrentAxes,[0 0.8*max(flowPerHeartCycle_val(:))])
+        caxis([0 8])%CHANGED
         cl = caxis(fig.CurrentAxes);
         set(get(cbar,'xlabel'),'string','Flow (mL/s)','fontsize',16,'Color','white');
         set(cbar,'FontSize',16,'color','white');

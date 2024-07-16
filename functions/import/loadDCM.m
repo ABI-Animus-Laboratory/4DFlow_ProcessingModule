@@ -25,7 +25,7 @@ clc
 BGPCdone=0; %0=do backgroun correction, 1=don't do background correction.
 %VENC = 800; %may change depending on participant
 autoFlow=1; %if you want automatically extracted BC's and flow profiles 0 if not.
-res='05';%'0.5''1.4'; %Only needed if you have multiple resolutions in your patient folder 
+res=[];%'05';%'0.5''1.4'; %Only needed if you have multiple resolutions in your patient folder 
 % AND the resolution is named in the file folder; put in the resolution.
 Vendor='GE'; %Under construction, just leave as is, this can be developed as people share case data
 
@@ -48,34 +48,35 @@ set(handles.TextUpdate,'String','Loading .DCM Data'); drawnow;
 %directory
 %Returns the folder files names for each x,y,z, and mag. Can also input
 %manually.
+
 [Anatpath,APpath,LRpath,SIpath] = retFlowFolders(directory,Vendor,res);
 %Load each velocity (raw phase) and put into phase matrix
-[VAP,INFO] = shuffleDCM(APpath,0);
+[VAP,INFO] = shuffleDCM3(APpath,0);
 [a,c,b,d]=size(VAP);
 v=zeros([a,c,b,3,d],'single');
-v(:,:,:,1,:)=squeeze(VAP(:,:,:,:));
+v(:,:,:,1,:)=1.*squeeze(VAP(:,:,:,:));
 clear VAP
 VENC=single(INFO.Private_0019_10cc); %This is for GE scanners, maybe not others?
-Scale=INFO.Private_0019_10e2;
+%Scale=INFO.Private_0019_10e2;
 
 set(handles.TextUpdate,'String','Loading .DCM Data 20%'); drawnow;
-[VLR,~] = shuffleDCM(LRpath,0);
-v(:,:,:,2,:)=squeeze(VLR(:,:,:,:));
+[VLR,~] = shuffleDCM3(LRpath,0);
+v(:,:,:,2,:)=1.*squeeze(VLR(:,:,:,:));
 clear VLR
 set(handles.TextUpdate,'String','Loading .DCM Data 40%'); drawnow;
-[VSI,~] = shuffleDCM(SIpath,0);
-v(:,:,:,3,:)=squeeze(VSI(:,:,:,:));
+[VSI,~] = shuffleDCM3(SIpath,0);
+v(:,:,:,3,:)=1.*squeeze(VSI(:,:,:,:));
 clear VSI
 set(handles.TextUpdate,'String','Loading .DCM Data 60%'); drawnow;
 
 % Convert to velocity
-v = (2 * (v-(-VENC))/(VENC-(-VENC)) - 1) * VENC; %range values to VENCs
+v = ((2*(v-(-VENC))/(VENC-(-VENC))) - 1) * VENC; %range values to VENCs
 vMean = mean(v,5);
 clear maxx minn
 set(handles.TextUpdate,'String','Loading .DCM Data 80%'); drawnow;
 
 %Load MAGnitude image
-[MAG,~] = shuffleDCM(Anatpath,0);
+[MAG,~] = shuffleDCM3(Anatpath,0);
 MAG = mean(MAG,4);
 set(handles.TextUpdate,'String','Loading .DCM Data 100%'); drawnow;
 

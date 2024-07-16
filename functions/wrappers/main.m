@@ -5,7 +5,7 @@
 % This function is designed to run assuming you store your data in BIDS 
 % format. If not, modify to run a folder or what not, BIDS is much easier
 clear;clc;
-path2bids='C:\Users\sdem348\Desktop\';
+path2bids='C:\Users\sdem348\Desktop\testdata';
 params=init_params(path2bids);
 params.SaveData=1;%Save Interim Data
 params.PltFlag=1; %Make plots
@@ -21,20 +21,22 @@ for i=1:1
         [PI_scat]=enc_PITC_process(data_struct,Labels,path2data,params,[]);
         [PITC,globPI] = enc_PITC_fit(PI_scat,path2data,params);
         [DF,PI,LocFlows,FlowErr,D] = enc_PI_DF_Flows(PI_scat,data_struct,Labels,path2data,params);
-        [Area] = enc_VesArea(PI_scat,data_struct,Labels,path2data,params);
+        [Area] = enc_VesArea(data_struct,Labels,path2data,params);
         [time,Flow,FlowErrVes]=enc_HQVesselFlows(data_struct,Labels,params);
-        [PWV,R,~]=enc_PWV(data_struct,PI_scat,time,Labels,params);
-        Results.PITC(i,:)=PITC(1,:);
-        Results.PI(i,:)=[globPI PITC(end,:) PI];
-        Results.DF(i,:)=DF;
-        Results.Flow(i,:)=[mean(LocFlows)];
-        Results.PWV(i,:)=PWV;
-        Results.PWVr(i,:)=R;
-        Results.Area(i,:)=Area;
+        [PWV,~,~]=enc_PWV(data_struct,PI_scat,time,Labels,params);
+        Results.Area(i,:)=Area; %Landmark cross sectional area, 
+        Results.PI(i,:)=[globPI PITC(end,:) PI]; %Landmark standard pulsatility
+        Results.Flow(i,:)=[mean(LocFlows)]; %Landmark vessel flow data
+        Results.Flow2{i}=LocFlows; %Landmark vessel flow data
+        Results.Flow2err{i}=FlowErr; %Landmark vessel flow data
+        Results.PITC(i,:)=PITC(1,:); %pulsatility tranmission
+        Results.PITCerr(i,:)=PITC(4,:); %pulsatility transmission slope CI (1sigma)
+        Results.DF(i,:)=DF; %damping factor
+        Results.PWV(i,:)=PWV;%pulse wave velocity (time consuming)
     else
     end
 end
-save(fullfile(params.data_dir,'derivatives\QVT\population\ResultsMR.mat'),"Results")
+save(fullfile(params.data_dir,'derivatives\QVT\population\Results.mat'),"Results")
 
 % %% Running 
 % %==================================================

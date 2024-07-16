@@ -1,4 +1,4 @@
-function [stats] = plotblandAltman(X1,X2,Type,XLims,YLims,lgnd,XTitle,YTitle,Title,Col,Shp)
+function [stats] = plot_BlandAltman(X1,X2,Type,XLims,YLims,lgnd,XTitle,YTitle,Title,Col,Shp)
     if Type == 1 
         [mdl,~] = fit_linXYData(X1,X2,[]);
         MaxY=max(X2);MinX=min(X1);MaxX=max(X1);MinY=min(X2);
@@ -16,9 +16,9 @@ function [stats] = plotblandAltman(X1,X2,Type,XLims,YLims,lgnd,XTitle,YTitle,Tit
         text(0.55,0.5,strcat('R^2=',num2str(R2,'%0.2f')),'Units','normalized','FontSize',6)
         text(0.55,0.40,strcat('p<',num2str(Slope(4),'%1.3f')),'Units','normalized','FontSize',6)
         hold on
-        plot(-1,-1,'r*')
+        %plot(-1,-1,'r*')
         if lgnd==1
-            a=legend('Raw Data','Unity','Fit','Failure');
+            a=legend('Raw Data','Unity','Fit');%,'Failure');
             set(a,'Location','NorthWest','FontSize',6,'color','none','box','off');
         end
         xlabel(XTitle,'FontSize',8)%,'FontWeight','Bold')

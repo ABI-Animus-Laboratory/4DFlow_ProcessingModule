@@ -149,9 +149,11 @@ lighting gouraud %smooth shine
 %%% Plot velocity vectors
 valsUse = logical(segmentVis); %binarize segmentation
 hold on
-vecLength = round(get(handles.vecLengthSlider,'Value')); %vector density
-handles.q = quiver3(Y(valsUse),X(valsUse),Z(valsUse), ... 
-    -handles.V(valsUse),-handles.U(valsUse),-handles.W(valsUse),vecLength);
+vecLength = round(get(handles.vecLengthSlider,'Value'))./4; %vector density
+%handles.q = quiver3(Y(valsUse),X(valsUse),Z(valsUse), ... 
+%    -handles.V(valsUse),-handles.U(valsUse),-handles.W(valsUse),vecLength);
+handles.q = quiver3(X(valsUse),Y(valsUse),Z(valsUse), ... 
+     handles.V(valsUse),handles.U(valsUse),handles.W(valsUse),vecLength);
 hold off
 
 % Compute magnitude of the vectors
@@ -173,17 +175,17 @@ set(handles.q.Head,'ColorBinding','interpolated', ...
 set(handles.q.Tail,'ColorBinding','interpolated', ...
     'ColorData',reshape(cmap(1:2,:,:),[],4).');
 
-set(gca,'CLim',[min(handles.mags),max(handles.mags)]); %auto set min/max
+set(gca,'CLim',[0 900]);%[min(handles.mags),max(handles.mags)]); %auto set min/max CHANGED to 0-99
 set(handles.q,'PickableParts','none','visible','off') %turn off initially
 handles.c = colorbar; %save colorbar in handle
 handles.c.Color = [1 1 1]; %white
 handles.c.LineWidth = 3; %width of colorbar
 handles.c.FontSize = 20; %size of units displayed
-ylabel(handles.c,'Velocity cm/sec') %colorbar caption
+ylabel(handles.c,'Velocity mm/sec') %colorbar caption
 set(handles.c,'visible','off') %turn off initially
-
-handles.cMIN = min(handles.mags); %save min vector magnit. as colorbar min
-handles.cMAX = max(handles.mags); %save max vector magnit. as colorbar max
+%CHANGED: COLORBARVELOCITY LIMITS
+handles.cMIN = 0;%min(handles.mags); %save min vector magnit. as colorbar min
+handles.cMAX = 900;% max(handles.mags); %save max vector magnit. as colorbar max
 
 
 %%% Plot data cursor plane
@@ -592,6 +594,9 @@ else
     % Keeps all values
     mags(mags<handles.cMIN) = handles.cMIN;
     mags(mags>handles.cMAX) = handles.cMAX;
+    %CHANGED to hard coded limits
+    mags(mags<100) = 100;
+    mags(mags>900) = 900;
 
     contents = cellstr(get(handles.colorscalevec,'String'));
     CMAP = contents{get(handles.colorscalevec,'Value')};
@@ -618,7 +623,7 @@ else
         %'VData',-handles.U(AllIdx),'WData',-handles.W(AllIdx),'PickableParts','none')
     set(handles.q,'visible','on')
     set(handles.c,'visible','on')
-    set(gca, 'CLim', [min(mags), max(mags)]);
+    set(gca, 'CLim', [100 900]);%[min(mags), max(mags)]); %CHANGED
 
     IDuse = [];
     for z = 1:handles.StructLoc
@@ -888,8 +893,11 @@ else
     % Compute magnitude of the vectors
     hold on
     vecLength = round(get(handles.vecLengthSlider,'Value'));
-    handles.q = quiver3(Y,X,Z,-handles.V(AllIdx),-handles.U(AllIdx), ...
-        -handles.W(AllIdx),vecLength);
+    % handles.q = quiver3(Y,X,Z,-handles.V(AllIdx),-handles.U(AllIdx), ...
+    %     -handles.W(AllIdx),vecLength);
+    handles.q = quiver3(X(valsUse),Y(valsUse),Z(valsUse), ... 
+     handles.V(valsUse),handles.U(valsUse),handles.W(valsUse),vecLength);
+    
     hold off
 
     mags = sqrt(sum(cat(2, -handles.U(AllIdx), -handles.V(AllIdx), ...
@@ -1177,9 +1185,9 @@ bnum = branchListVis(pindex,4);
 
 hold on  
 %Update Planes for points
-pVis = fill3(PlanesVis(pindex,:,1)',PlanesVis(pindex,:,2)',PlanesVis(pindex,:,3)', ...
-    [0 0 1],'EdgeColor',[0 0 1],'FaceAlpha',1,'Visible','on', ...
-    'PickableParts','none','Parent', figVis.Children(2)); 
+% pVis = fill3(PlanesVis(pindex,:,1)',PlanesVis(pindex,:,2)',PlanesVis(pindex,:,3)', ...
+%     [0 0 1],'EdgeColor',[0 0 1],'FaceAlpha',1,'Visible','on', ...
+%     'PickableParts','none','Parent', figVis.Children(2)); 
 % fill3(pty',ptx',ptz','r') when used with isosurface
 hold off
 

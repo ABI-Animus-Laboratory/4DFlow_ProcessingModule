@@ -1,10 +1,10 @@
-function [PWV,A]=enc_PWVBjornfoot(Flows,Vals,time,tag,params)
+function [PWV,A]=enc_PWV_WO(Flows,Vals,time,tag,params)
     D=Vals(:,1)./1000; %get distance into meters
     F=Flows(Vals(:,2),:);
     Q=Vals(:,3);
     A=Vals(:,4);
     for flow=1:length(F(:,1))
-        Ftemp=F(flow,:);
+        Ftemp=F(flow,:)./(A(flow,1));
         Ftemp=Ftemp-mean(Ftemp); % remove mean.
         Scaling=1./std(Ftemp); 
         F(flow,:)=Ftemp.*Scaling;  % Normalise by standard deviation and update.
@@ -28,12 +28,13 @@ function [PWV,A]=enc_PWVBjornfoot(Flows,Vals,time,tag,params)
     initialGuess=[mean_flow, pwv0]; 
     %This is the function below for cost function, check here
     options = optimset('Display','off', 'TolCon', 1e-7, 'TolX', 1e-7, 'TolFun', 1e-7,'DiffMinChange', 1e-3);
-    lb=[-5.*ones([1 20]) 0];
-    ub=[5.*ones([1 20]) 20];
-    [Results] = fmincon(fun1,initialGuess,[],[],[],[],lb,ub,[],options);
-    if Results(end)<30
-        PWV = Results(end);
+    lb=[-5.*ones([1 20]) -200];
+    ub=[5.*ones([1 20]) 200];
+    %[Results] = fmincon(fun1,initialGuess,[],[],[],[],lb,ub,[],options);
+    [Results] = fminunc(fun1,initialGuess, options);%,options1);
+    if Results(end)<0
+        PWV = -1;
     else
-        PWV = 0;
+        PWV = Results(end);
     end
 end

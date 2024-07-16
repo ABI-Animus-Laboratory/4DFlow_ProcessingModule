@@ -16,14 +16,16 @@ function [] = plot_XYDataGender(xData,yData,MrkrSz,mdlPlot,yLIMS,xLIMS,xTitle,yT
     scatter(xData{2},yData{2},MrkrSz,'MarkerFaceColor',[0.3922    0.8314    0.0745],...
         'MarkerEdgeColor','k','MarkerFaceAlpha',0.4,'MarkerEdgeAlpha',.6)
     hold on
-    mdlPlot1=mdlPlot{1};
-    mdlPlot2=mdlPlot{2};
-    plot(mdlPlot1(:,1),mdlPlot1(:,2),'-','Color',[0.7176    0.2745    1.0000])
-    plot(mdlPlot1(:,1),mdlPlot1(:,3),'--','Color',[0.7176    0.2745    1.0000])
-    plot(mdlPlot1(:,1),mdlPlot1(:,4),'--','Color',[0.7176    0.2745    1.0000])
-    plot(mdlPlot2(:,1),mdlPlot2(:,2),'-','Color',[0.3922    0.8314    0.0745])
-    plot(mdlPlot2(:,1),mdlPlot2(:,3),'--','Color',[0.3922    0.8314    0.0745])
-    plot(mdlPlot2(:,1),mdlPlot2(:,4),'--','Color',[0.3922    0.8314    0.0745])
+    if ~isempty(mdlPlot)
+        mdlPlot1=mdlPlot{1};
+        mdlPlot2=mdlPlot{2};
+        plot(mdlPlot1(:,1),mdlPlot1(:,2),'-','Color',[0.7176    0.2745    1.0000])
+        %plot(mdlPlot1(:,1),mdlPlot1(:,3),'--','Color',[0.7176    0.2745    1.0000])
+        %plot(mdlPlot1(:,1),mdlPlot1(:,4),'--','Color',[0.7176    0.2745    1.0000])
+        plot(mdlPlot2(:,1),mdlPlot2(:,2),'-','Color',[0.3922    0.8314    0.0745])
+        %plot(mdlPlot2(:,1),mdlPlot2(:,3),'--','Color',[0.3922    0.8314    0.0745])
+        %plot(mdlPlot2(:,1),mdlPlot2(:,4),'--','Color',[0.3922    0.8314    0.0745])
+    end
     if ~isempty(yLIMS) 
         minY=yLIMS(1);maxY=yLIMS(2);
         ylim([minY maxY])

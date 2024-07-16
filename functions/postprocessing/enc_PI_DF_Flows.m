@@ -1,92 +1,44 @@
 function [DF,PI,Flows,FlowErr,D] = enc_PI_DF_Flows(PI_scat,data_struct,Labels,path2data,params)
     % Load Necessities from labels and processed data
     load(fullfile(path2data,'RawPITC.mat'));
-    %%
     BranchList=data_struct.branchList;
     BranchList=[BranchList [1:length(BranchList)]'];
     FlowData=data_struct.flowPulsatile_val;
-    roots=[1,2,9]; %L_ICA R_ICA BA
-    CoWA=[3,5,4,6,7,8];% LMCA LACA RMCA RACA LPCA RPCA
-    StartPI=[];
-    EndPI=[];
+    PIData=data_struct.PI_val;
+    order=[1,2,9,3,5,4,6,7,8]; %L_ICA R_ICA BA LMCA LACA RMCA RACA LPCA RPCA
+    DFPI=-1.*ones([9,5]);
     PI=zeros([1 9]);
     D=zeros([1 9]);
     Flows=zeros([20 9]); %%assuming 20 cardiac phases
     FlowErr=zeros([20 9]); %%assuming 20 cardiac phases
-    for i=1:3
-        LOC = Labels{roots(i),3};
-        LOC=str2num(LOC);
-        if length(LOC)>=1
-            ves = Labels{roots(i),2};
-            ves = str2num(ves);
-            if length(ves)>1
-                ves = Labels{roots(i),3};
-                ves = str2num(ves);
-                ves = ves(1);
-            end
-            if length(LOC)>1
-                temp=LOC;
-                LOC=temp(2);
-                ves=temp(1);
-            end
-            [idx1,~]=find(BranchList(:,4)==ves);
-            Data=BranchList(idx1,:);
-            [idx2,~]=find(Data(:,5)==LOC);
-            VesLoc=Data(idx2,:);
-            [idx3,~]=find(PI_scat(:,3,i)==VesLoc(6));
-            StartPI(i,:)=mean(abs(PI_scat((idx3-2):(idx3+2),:,i)));
-            PI(1,roots(i))=abs(PI_scat(idx3,2,i));
-            D(1,roots(i))=PI_scat(idx3,1,i);
-            switch params.FlowType
-                case 'Local'
-                    Flows(:,roots(i))=mean(FlowData((VesLoc(6)-2):(VesLoc(6)+2),:));%5 point mean flow
-                    FlowErr(:,roots(i))=std(FlowData((VesLoc(6)-2):(VesLoc(6)+2),:));%5 point mean flow
-            end
-        else
-            StartPI(i,:)=[-1 -1 -1 -1 -1];
-        end
-    end
-    loci=[3 5 4 6 7 8];
-    for i=1:6
-        if i>4
+    [Locs]=get_SampleLocs(data_struct,Labels);
+    for i=1:9
+        loc=Locs(order(i));
+        if i>7
             j=3;
-        elseif i>2
+        elseif i>5
             j=2;
-        else
+        elseif i>3
             j=1;
-        end
-        ves = Labels{loci(i),2};
-        ves = str2num(ves);
-        if length(ves)>1
-            ves = Labels{roots(i),3};
-            ves = str2num(ves);
-            ves=ves(1);
-        end
-        LOC = Labels{loci(i),3};
-        LOC=str2num(LOC);
-        if length(LOC)>1
-            temp=LOC;
-            LOC=temp(2);
-            ves=temp(1);
-        end
-        if ves>0
-            [idx1,~]=find(BranchList(:,4)==ves);
-            Data=BranchList(idx1,:);
-            [idx2,~]=find(Data(:,5)==LOC);
-            VesLoc=Data(idx2,:);
-            [idx3,~]=find(PI_scat(:,3,j)==VesLoc(6));
-            EndPI(i,:)=mean(PI_scat((idx3-2):(idx3+2),:,j));
-            PI(1,loci(i))=mean(PI_scat((idx3-2):(idx3+2),2,j));
-            D(1,loci(i))=mean(PI_scat((idx3-2):(idx3+2),1,j));
-        switch params.FlowType
-            case 'Local'
-                Flows(:,loci(i))=mean(FlowData((VesLoc(6)-2):(VesLoc(6)+2),:)); %5 point mean flow
-                FlowErr(:,loci(i))=std(FlowData((VesLoc(6)-2):(VesLoc(6)+2),:));%5 point mean flow
-        end
         else
-            EndPI(i,:)=[-1 -1 -1 -1 -1];
+            j=i;
+        end
+        if loc>0
+            PI(1,order(i))=mean(abs(PIData((loc-2):(loc+2)))); 
+            switch params.FlowType
+                    case 'Local'
+                        Flows(:,order(i))=mean(FlowData((loc-2):(loc+2),:));%5 point mean flow
+                        FlowErr(:,order(i))=std(FlowData((loc-2):(loc+2),:));%5 point mean flow
+                end
+            [idx3,~]=find(PI_scat(:,3,j)==loc);
+            if ~isempty(idx3)
+                D(1,order(i))=mean(PI_scat((idx3-2):(idx3+2),1,j));
+                DFPI(order(i),:)=mean(abs(PI_scat((idx3-2):(idx3+2),:,j)));
+            end
         end
     end
+    StartPI=DFPI([1 2 9],:);
+    EndPI=DFPI([3 5 4 6 7 8],:);
     DF=[0 0 0];
     for k=1:3
         Matt=EndPI((1+(k-1)*2):(2+(k-1)*2),2);

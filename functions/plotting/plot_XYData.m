@@ -1,5 +1,15 @@
-function [] = plot_XYData(xData,yData,Col,MrkrSz,mdlPlot,yLIMS,xLIMS,xTitle,yTitle,Title,FS,LGND,Ticks)
-    scatter(xData,yData,MrkrSz,'MarkerFaceColor',Col,'MarkerEdgeColor',Col,'MarkerFaceAlpha',0.4,'MarkerEdgeAlpha',.7)
+function [] = plot_XYData(xData,yData,Col,MrkrSz,mdlPlot,yLIMS,xLIMS,xTitle,yTitle,Title,FS,LGND,Ticks,Group,Alpha)
+    if ~isempty(Group)
+        idx1=find(Group==1);
+        scatter(xData(idx1),yData(idx1),MrkrSz,'MarkerFaceColor','r','MarkerEdgeColor','k','MarkerFaceAlpha',Alpha(1),'MarkerEdgeAlpha',Alpha(2))
+        hold on
+        idx1=find(Group==2);
+        scatter(xData(idx1),yData(idx1),MrkrSz,'MarkerFaceColor','g','MarkerEdgeColor','k','MarkerFaceAlpha',Alpha(1),'MarkerEdgeAlpha',Alpha(2))
+        idx1=find(Group==3);
+        scatter(xData(idx1),yData(idx1),MrkrSz,'MarkerFaceColor','b','MarkerEdgeColor','k','MarkerFaceAlpha',Alpha(1),'MarkerEdgeAlpha',Alpha(2))
+    else
+        scatter(xData,yData,MrkrSz,'MarkerFaceColor',Col,'MarkerEdgeColor',Col,'MarkerFaceAlpha',Alpha(1),'MarkerEdgeAlpha',Alpha(2))
+    end
     hold on
     plot(mdlPlot(:,1),mdlPlot(:,2),'k-')
     plot(mdlPlot(:,1),mdlPlot(:,3),'k--')
@@ -7,8 +17,9 @@ function [] = plot_XYData(xData,yData,Col,MrkrSz,mdlPlot,yLIMS,xLIMS,xTitle,yTit
     [mdl,~] = fit_linXYData(xData,yData,[]);
     Slope=table2array(mdl.Coefficients(2,:));
     R2=mdl.Rsquared.Adjusted;
-    text(0.25,1.08,strcat('R^2=',num2str(R2,'%0.2f'),',p<',num2str(Slope(4),'%1.3f')),'Units','normalized','FontSize',6)
-
+    %text(0.5,0.9,strcat('R^2=',num2str(R2,'%0.2f'),',p<',num2str(Slope(4),'%1.3f')),'Units','normalized','FontSize',6)
+    text(0.7,0.9,strcat('p<',num2str(Slope(4),'%1.3f')),'Units','normalized','FontSize',6)
+    stats=Slope(4);
     if ~isempty(yLIMS) 
         minY=yLIMS(1);maxY=yLIMS(2);
         ylim([minY maxY])

@@ -10,16 +10,16 @@
 % wonkey
 %
 % You may need to add your own regular expression to load the data. 
-function [V,dcminfo] = shuffleDCM(path,flip)
+function [V,dcminfo] = shuffleDCM3(path,flip)
 DIR=dir(path);
 DIR(1:2)=[];
 % These are the regular expressions for difference DICOM files I've come
 % across, if yours is different, please add it to the cell and the function
 % will naturally become more robust. 
 Exp={'i\d*.MRDC.(\d*)$';
-    'e\d*s\d*i(\d*)';
     '.*-(\d*).dcm$';
     '.*i(\d*)$';
+    'Z(\d*)';
     '.*(\d*).dcm$';
     '.*(\d*)$';};
 expID=0;
@@ -62,24 +62,21 @@ dcminfo = dicominfo(fullfile(path,filename));
 numphase=dcminfo.CardiacNumberOfImages;
 slices=length(SortedDir)/numphase;
 V=zeros([a,b,slices,numphase],'single');
-if flip==0
-    pos=0;
-else
-    pos=slices+1;
-end
+pos=zeros([slices,1]);
+phase=zeros([numphase,1]);
 for i=1:length(SortedDir)
     filename=SortedDir{i};
     slice = dicomread(fullfile(path,filename));
-    phase=rem(i,numphase);
-    if phase == 0
-        phase = numphase;
-    end
-    if phase ==1
-        if flip==0
-            pos = pos+1;
-        else
-            pos = pos-1;
-        end
-    end
-    V(:,:,pos,phase)=slice(:,:);
+    dcminfo = dicominfo(fullfile(path,filename));
+    phase(i,1) = dcminfo.TemporalPositionIdentifier;
+    pos(i,1)=dcminfo.SliceLocation;
+end
+USlices=unique(pos);
+USlices=flipud(USlices);
+for i=1:length(SortedDir)
+    filename=SortedDir{i};
+    dcminfo = dicominfo(fullfile(path,filename));
+    [a,~]=find(USlices==dcminfo.SliceLocation);
+    slice = dicomread(fullfile(path,filename));
+    V(:,:,a,phase(i))=slice(:,:);
 end
