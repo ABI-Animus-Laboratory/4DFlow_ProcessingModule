@@ -257,8 +257,8 @@ fig = figure(1); cla
 %set(fig,'Position',[1856 37 1416 954]); %HOME
 
 %hpatch = patch(isosurface(permute(segment,[2 1 3]),0.5),'FaceAlpha',0.3); %bw iso angiogram
-%reducepatch(hpatch,0.7);
-%set(hpatch,'FaceColor','white','EdgeColor', 'none','PickableParts','none');
+%reducepatch(hpatch,0.7);%Sergio Patch
+%set(hpatch,'FaceColor','red','EdgeColor', 'none','PickableParts','none');
 set(gcf,'color','black');
 axis off tight
 view([1 0 0]);
@@ -288,7 +288,7 @@ hold off
 caxis([min(cdata) max(cdata)]);
 cbar = colorbar;
 caxis([0 0.8*max(flowPerHeartCycle_val(:))])
-caxis([0 8]) %CHANGED
+caxis([0 5]) %CHANGED
 set(get(cbar,'xlabel'),'string','Flow (mL/s)','fontsize',16,'Color','white');
 set(cbar,'FontSize',16,'color','white');
 ax = gca;
@@ -939,6 +939,7 @@ end
 function VisualTool_Callback(hObject, eventdata, handles)
 global Planes branchList segment caseFilePath res 
 set(handles.TextUpdate,'String','Opening Visual Tool'); drawnow;
+%save('C:\Users\sdem348\Documents\MATLAB\CHM\QVTplus\Tester.mat','Planes','branchList','segment','caseFilePath','res')
 fourDvis(Planes,branchList,segment,caseFilePath,res);
 uiwait;
 set(handles.TextUpdate,'String','Visual Tool Closed'); drawnow;

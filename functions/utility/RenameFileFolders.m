@@ -2,8 +2,8 @@ clc;clear;
 %This function will rename exported DICOM folders by their scan name in the
 %DICOM metadata. Good for visualising during folder exploration, but
 %unecessary to any processing. 
-ExamN='0.8mm';
-path2data=fullfile('C:\Users\sdem348\Desktop\MultiResTest\sourcedata');
+ExamN='e1214';
+path2data=fullfile('C:\Users\sdem348\Desktop\Exam3292');
 DIR=dir(fullfile(path2data,ExamN));
 %DIR=dir('C:\Users\sdem348\Desktop\MultiResTest\sourcedata\')
 EXP='s\d*.*';

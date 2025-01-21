@@ -11,13 +11,15 @@ function [] = plot_XYData(xData,yData,Col,MrkrSz,mdlPlot,yLIMS,xLIMS,xTitle,yTit
         scatter(xData,yData,MrkrSz,'MarkerFaceColor',Col,'MarkerEdgeColor',Col,'MarkerFaceAlpha',Alpha(1),'MarkerEdgeAlpha',Alpha(2))
     end
     hold on
-    plot(mdlPlot(:,1),mdlPlot(:,2),'k-')
-    plot(mdlPlot(:,1),mdlPlot(:,3),'k--')
-    plot(mdlPlot(:,1),mdlPlot(:,4),'k--')
+    plot(mdlPlot(:,1),mdlPlot(:,2),'k-','LineWidth',1.5);
+    plot(mdlPlot(:,1),mdlPlot(:,3),'k--','LineWidth',1.5);
+    plot(mdlPlot(:,1),mdlPlot(:,4),'k--','LineWidth',1.5);
     [mdl,~] = fit_linXYData(xData,yData,[]);
     Slope=table2array(mdl.Coefficients(2,:));
     R2=mdl.Rsquared.Adjusted;
-    %text(0.5,0.9,strcat('R^2=',num2str(R2,'%0.2f'),',p<',num2str(Slope(4),'%1.3f')),'Units','normalized','FontSize',6)
+    %text(0.7,0.7,strcat('R^2=',num2str(R2,'%0.2f'),',p<',num2str(Slope(4),'%1.3f')),'Units','normalized','FontSize',6)
+    text(0.7,0.7,strcat('R^2=',num2str(R2,'%0.2f')),'Units','normalized','FontSize',6)
+   
     text(0.7,0.9,strcat('p<',num2str(Slope(4),'%1.3f')),'Units','normalized','FontSize',6)
     stats=Slope(4);
     if ~isempty(yLIMS) 

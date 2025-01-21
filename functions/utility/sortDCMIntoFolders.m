@@ -1,6 +1,6 @@
 clear
 clc
-path2data='C:\Users\sdem348\Desktop\A';
+path2data='C:\Users\sdem348\Desktop\HERMRI\sourcedata\HERS_C2P4';
 DIR=dir(path2data);
 DIR(1:2)=[];
 Names{1,1}={};
@@ -35,9 +35,13 @@ for i=1:length(Names)
     end
     Names{i,1}=Name2;
 end
+
+%%
 for i=1:length(DIR)
     if ~isempty(Type{i,1})
-        movefile(Type{i,2},fullfile(path2data,Names{Type{i,1}}))
+        try
+            movefile(Type{i,2},fullfile(path2data,Names{Type{i,1}}))
+        end
     end
 end
 

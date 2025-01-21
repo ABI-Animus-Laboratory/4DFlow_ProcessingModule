@@ -73,11 +73,12 @@ movegui(handles.figure1,'southwest'); %move to bottom left (WORK)
 load(caseFilePath,'imageData') %load data_struct
 
 %%% Save all data in handles structure
+%handles.MAG = rot90(fliplr(imageData.MAG)); %SD Edit
 handles.MAG = imageData.MAG;
 handles.CD = imageData.CD;
-handles.U = imageData.V(:,:,:,1); 
-handles.V = imageData.V(:,:,:,2); 
-handles.W = imageData.V(:,:,:,3); 
+handles.U = imageData.V(:,:,:,1); %AP
+handles.V = imageData.V(:,:,:,2); %LR
+handles.W = imageData.V(:,:,:,3); %SI
 handles.res = size(imageData.MAG); %new matrix sizes (after cropping)
 handles.MIMICS.delX = res; %pixel size for mimics masks
 handles.MIMICS.delY = res;
@@ -132,11 +133,14 @@ set(handles.zplaneloc,'Min',0);
 
 %%% Plot isosurface over current figure
 figure(figVis)
-handles.MaskID_struct(1).ISOsurf = patch(isosurface(permute(segmentVis,[2 1 3]),0.5), ... 
+%handles.MaskID_struct(1).ISOsurf = patch(isosurface(permute(rot90(fliplr(segmentVis)),[2 1 3]),0.5), ...  %SD Edit segmentVis to rot90
+%    'FaceAlpha',handles.MaskID_struct(1).ISOvar.alpha);
+handles.MaskID_struct(1).ISOsurf = patch(isosurface(permute(segmentVis,[2 1 3]),0.5), ...
     'FaceAlpha',handles.MaskID_struct(1).ISOvar.alpha);
 set(handles.MaskID_struct(1).ISOsurf,'FaceColor',handles.MaskID_struct(1).ISOvar.color, ...
     'EdgeColor','none','PickableParts','none');
 set(gcf,'color','black'); %set background to black
+%set(gcf,'color','white'); %set background to white
 axis off tight %remove axis
 view([1 0.1 0.1]); %set to sag.(offset 0.1 to see cor. and ax. MAG planes)
 axis vis3d
@@ -144,16 +148,26 @@ daspect([1 1 1]) %set aspect ratio so not elongated
 set(gca,'zdir','reverse') %flip angiogram upside down (correct orientation)
 camlight headlight; %make isosurface shine
 lighting gouraud %smooth shine
+lightangle(45,-70)
 
 [X,Y,Z] = meshgrid(1:size(handles.MAG,2),1:size(handles.MAG,1),1:size(handles.MAG,3)); 
 %%% Plot velocity vectors
 valsUse = logical(segmentVis); %binarize segmentation
 hold on
-vecLength = round(get(handles.vecLengthSlider,'Value'))./4; %vector density
+vecLength = round(get(handles.vecLengthSlider,'Value'))./3; %vector density
 %handles.q = quiver3(Y(valsUse),X(valsUse),Z(valsUse), ... 
 %    -handles.V(valsUse),-handles.U(valsUse),-handles.W(valsUse),vecLength);
-handles.q = quiver3(X(valsUse),Y(valsUse),Z(valsUse), ... 
-     handles.V(valsUse),handles.U(valsUse),handles.W(valsUse),vecLength);
+handles.q = quiver3(Y(valsUse),X(valsUse),Z(valsUse), ... 
+    handles.U(valsUse),handles.V(valsUse),handles.W(valsUse),vecLength);
+%handles.q = quiver3(X(valsUse),Y(valsUse),Z(valsUse), ... 
+%     handles.V(valsUse),handles.U(valsUse),handles.W(valsUse),vecLength);
+% SD, plot centrelines
+% for i=1:max(branchListVis(:,4))
+%     idx=find(branchListVis(:,4)==i);
+%     if length(idx)>1
+%         plot3(branchListVis(idx,1),branchListVis(idx,2),branchListVis(idx,3),'k-','LineWidth',2)
+%     end
+% end
 hold off
 
 % Compute magnitude of the vectors
@@ -175,7 +189,7 @@ set(handles.q.Head,'ColorBinding','interpolated', ...
 set(handles.q.Tail,'ColorBinding','interpolated', ...
     'ColorData',reshape(cmap(1:2,:,:),[],4).');
 
-set(gca,'CLim',[0 900]);%[min(handles.mags),max(handles.mags)]); %auto set min/max CHANGED to 0-99
+set(gca,'CLim',[min(handles.mags),max(handles.mags)]); %Sergio auto set min/max CHANGED to 0-99
 set(handles.q,'PickableParts','none','visible','off') %turn off initially
 handles.c = colorbar; %save colorbar in handle
 handles.c.Color = [1 1 1]; %white
@@ -184,8 +198,8 @@ handles.c.FontSize = 20; %size of units displayed
 ylabel(handles.c,'Velocity mm/sec') %colorbar caption
 set(handles.c,'visible','off') %turn off initially
 %CHANGED: COLORBARVELOCITY LIMITS
-handles.cMIN = 0;%min(handles.mags); %save min vector magnit. as colorbar min
-handles.cMAX = 900;% max(handles.mags); %save max vector magnit. as colorbar max
+handles.cMIN = min(handles.mags); %save min vector magnit. as colorbar min
+handles.cMAX = max(handles.mags); %save max vector magnit. as colorbar max
 
 
 %%% Plot data cursor plane
@@ -595,7 +609,7 @@ else
     mags(mags<handles.cMIN) = handles.cMIN;
     mags(mags>handles.cMAX) = handles.cMAX;
     %CHANGED to hard coded limits
-    mags(mags<100) = 100;
+    mags(mags<0) = 0;
     mags(mags>900) = 900;
 
     contents = cellstr(get(handles.colorscalevec,'String'));
@@ -623,7 +637,7 @@ else
         %'VData',-handles.U(AllIdx),'WData',-handles.W(AllIdx),'PickableParts','none')
     set(handles.q,'visible','on')
     set(handles.c,'visible','on')
-    set(gca, 'CLim', [100 900]);%[min(mags), max(mags)]); %CHANGED
+    set(gca, 'CLim', [min(mags), max(mags)]); %sergio CHANGED
 
     IDuse = [];
     for z = 1:handles.StructLoc
@@ -695,7 +709,7 @@ handles.c = colorbar;
 handles.c.Color = [1 1 1];
 handles.c.LineWidth = 3;
 handles.c.FontSize = 20;
-ylabel(handles.c, 'Velocity cm/sec')
+ylabel(handles.c, 'Velocity mm/sec')
 
 guidata(hObject, handles);
 
@@ -761,7 +775,7 @@ handles.c = colorbar;
 handles.c.Color = [1 1 1];
 handles.c.LineWidth = 3;
 handles.c.FontSize = 20;
-ylabel(handles.c, 'Velocity cm/sec')
+ylabel(handles.c, 'Velocity mm/sec')
 guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
@@ -841,7 +855,6 @@ if ~isempty(IDuse)
     handles.c.LineWidth = 3;
     handles.c.FontSize = 20;
     ylabel(handles.c,'Velocity cm/sec')
-
     set(handles.q,'visible','on')
     set(handles.c,'visible','on')
 end
@@ -893,10 +906,10 @@ else
     % Compute magnitude of the vectors
     hold on
     vecLength = round(get(handles.vecLengthSlider,'Value'));
-    % handles.q = quiver3(Y,X,Z,-handles.V(AllIdx),-handles.U(AllIdx), ...
-    %     -handles.W(AllIdx),vecLength);
-    handles.q = quiver3(X(valsUse),Y(valsUse),Z(valsUse), ... 
-     handles.V(valsUse),handles.U(valsUse),handles.W(valsUse),vecLength);
+     handles.q = quiver3(Y,X,Z,-handles.V(AllIdx),-handles.U(AllIdx), ...
+         -handles.W(AllIdx),vecLength);
+    %handles.q = quiver3(X(valsUse),Y(valsUse),Z(valsUse), ... 
+    % handles.V(valsUse),handles.U(valsUse),handles.W(valsUse),vecLength);
     
     hold off
 
@@ -1185,10 +1198,10 @@ bnum = branchListVis(pindex,4);
 
 hold on  
 %Update Planes for points
-% pVis = fill3(PlanesVis(pindex,:,1)',PlanesVis(pindex,:,2)',PlanesVis(pindex,:,3)', ...
-%     [0 0 1],'EdgeColor',[0 0 1],'FaceAlpha',1,'Visible','on', ...
-%     'PickableParts','none','Parent', figVis.Children(2)); 
-% fill3(pty',ptx',ptz','r') when used with isosurface
+pVis = fill3(PlanesVis(pindex,:,1)',PlanesVis(pindex,:,2)',PlanesVis(pindex,:,3)', ...
+     [0 0 1],'EdgeColor',0.0*[1 1 1],'FaceAlpha',0.3,'LineWidth',2,'Visible','on', ...
+     'PickableParts','none','Parent', figVis.Children(2)); 
+%fill3(pty',ptx',ptz','r')% when used with isosurface
 hold off
 
 

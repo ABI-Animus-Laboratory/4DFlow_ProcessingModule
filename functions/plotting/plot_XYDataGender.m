@@ -5,7 +5,7 @@ function [] = plot_XYDataGender(xData,yData,MrkrSz,mdlPlot,yLIMS,xLIMS,xTitle,yT
         hold on
         scatter(-1000,-1000,20,'MarkerFaceColor',[0.3922    0.8314    0.0745],...
             'MarkerEdgeColor','k','MarkerFaceAlpha',0.4,'MarkerEdgeAlpha',.6);
-        floatlgnd=legend('Male','Female');
+        floatlgnd=legend('LICA','RICA');
         set(floatlgnd,'AutoUpdate','off','Location','NorthWest','FontSize',FS(1));
     end
 

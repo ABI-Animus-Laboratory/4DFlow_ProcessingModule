@@ -18,7 +18,7 @@ function [area_val, diam_val, segmentFull] = segment_cross_section_thresh(segmen
         temp = magSLICE - min(magSLICE);
         magSLICE = temp./max(temp(:));
         
-        weightIMS = [.2 .8 .2]; % Weights = [Mag CD Vel]
+        weightIMS = [.2 .8 .1]; % Weights = [Mag CD Vel]
         weightIMAGE = (weightIMS(1).*magSLICE) + (weightIMS(2).*cdSLICE) + (weightIMS(3).*velSLICE);
         
         step = 0.001;

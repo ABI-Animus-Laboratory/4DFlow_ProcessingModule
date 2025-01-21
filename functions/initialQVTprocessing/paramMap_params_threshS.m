@@ -175,15 +175,19 @@ for j = 1:nframes
     %SegPlanes(:,:,j)=vTimeFrame;
     vTimeFramerowMean = sum(vTimeFrame,2) ./ sum(vTimeFrame~=0,2); %mean vel
     flowPulsatile_val(:,j) = vTimeFramerowMean.*area_val; %TR flow (ml/s)
-    maxVelFrame(:,j) = max(vTimeFrame,[],2); %max vel. each frame (cm/s)
+    maxVelFrame(:,j) = max(abs(vTimeFrame),[],2); %max vel. each frame (cm/s) %Grab absolute in vase flow is reversed.
     velPulsatile_val(:,j) = vTimeFramerowMean;%mean vel. each frame (cm/s)  
 end 
 %save('SegPlanes.mat','SegPlanes','-v7.3' );
 %size(maxVelFrame)
 clear COL ROW idCOL Tangent_V v1 v2 v3 vx vy vz x_full y_full z_full x y z SegPlanes
 %% Compute Hemodynamic Parameters
-maxVel_val = max(maxVelFrame,[],2); %max in-plane veloc. for all frames
 flowPerHeartCycle_val = sum(flowPulsatile_val,2)./(nframes); %TA flow (ml/s)
+idx=find(flowPerHeartCycle_val<0);
+flowPerHeartCycle_val(idx)=-flowPerHeartCycle_val(idx);
+flowPulsatile_val(idx,:)=-flowPulsatile_val(idx,:);
+velPulsatile_val(idx,:)=-velPulsatile_val(idx,:);
+maxVel_val = max(maxVelFrame,[],2); %max in-plane veloc. for all frames
 velMean_val = sum(velPulsatile_val,2)./(nframes); %TA in-plane velocities
 % Pulsatility Index (PI) = (systolic vel - diastolic vel)/(mean vel)
 PI_val = abs(max(flowPulsatile_val,[],2) - min(flowPulsatile_val,[],2))./mean(flowPulsatile_val,2);

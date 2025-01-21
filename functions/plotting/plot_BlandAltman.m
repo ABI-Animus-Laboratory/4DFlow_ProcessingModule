@@ -11,25 +11,25 @@ function [stats] = plot_BlandAltman(X1,X2,Type,XLims,YLims,lgnd,XTitle,YTitle,Ti
         plot(XLims,XLims,'k')
         plot(XFit,Slope(1).*XFit+table2array(mdl.Coefficients(1,1)),'k-.','LineWidth',2)
         
-%text(0.55,0.5,strcat('R^2=',num2str(R2,'%0.2f'),',p<',num2str(Slope(4),'%1.3f')),'Units','normalized','FontSize',6)
+        %text(0.55,0.5,strcat('R^2=',num2str(R2,'%0.2f'),',p<',num2str(Slope(4),'%1.3f')),'Units','normalized','FontSize',6)
         
-        text(0.55,0.5,strcat('R^2=',num2str(R2,'%0.2f')),'Units','normalized','FontSize',6)
-        text(0.55,0.40,strcat('p<',num2str(Slope(4),'%1.3f')),'Units','normalized','FontSize',6)
+        text(0.6,0.5,strcat('R^2=',num2str(R2,'%0.2f')),'Units','normalized','FontSize',6)
+        text(0.6,0.40,strcat('p<',num2str(Slope(4),'%1.3f')),'Units','normalized','FontSize',6)
         hold on
-        %plot(-1,-1,'r*')
+        %plot(-100,-100,'rx')
         if lgnd==1
-            a=legend('Raw Data','Unity','Fit');%,'Failure');
-            set(a,'Location','NorthWest','FontSize',6,'color','none','box','off');
+            a=legend('Raw Data','Unity','Fit');%'Failure');
+            set(a,'Location','NorthWest','FontSize',6,'color','white','box','on','AutoUpdate','off');
         end
-        xlabel(XTitle,'FontSize',8)%,'FontWeight','Bold')
-        ylabel(YTitle,'FontSize',8)%,'FontWeight','Bold')
-        title(Title,'FontSize',10,'FontWeight','Bold')
+        xlabel(XTitle,'FontSize',10);%,'FontWeight','Bold')
+        ylabel(YTitle,'FontSize',10);%,'FontWeight','Bold')
+        title(Title,'FontSize',10);%,'FontWeight','Bold')
         xlim(XLims);
         ylim(XLims)
 
         stats=[R2 Slope(4)];
         grid on
-        box on
+        %box on
     else
         X2p=X2-X1;
         Dev=std(X2p);
@@ -48,7 +48,7 @@ function [stats] = plot_BlandAltman(X1,X2,Type,XLims,YLims,lgnd,XTitle,YTitle,Ti
         plot(XLims,[(mean(X2p)-Dev) (mean(X2p)-Dev)],'k--')
 
 
-        text(0.25,0.08,strcat('R^2=',num2str(R2,'%0.2f'),',p<',num2str(Slope(4),'%1.3f')),'Units','normalized','FontSize',6)
+        text(0.25,0.08,strcat('R^2=',num2str(R2,'%0.2f'),{'    '},'p<',num2str(Slope(4),'%1.3f')),'Units','normalized','FontSize',6)
         if lgnd==1
             a=legend('Raw Data',...
                 strcat('mean=',num2str(mean(X2p),'%1.2f')),...
@@ -56,8 +56,8 @@ function [stats] = plot_BlandAltman(X1,X2,Type,XLims,YLims,lgnd,XTitle,YTitle,Ti
                 'Fit');
             set(a,'Location','NorthWest','FontSize',6)
         end
-        xlabel(XTitle,'FontSize',8)%,'FontWeight','Bold')
-        ylabel(YTitle,'FontSize',8)%,'FontWeight','Bold')
+        xlabel(XTitle,'FontSize',10);%,'FontWeight','Bold')
+        ylabel(YTitle,'FontSize',10);%,'FontWeight','Bold')
         ylim([(MinY-0.3*MaxY) (MaxY+0.3*MaxY)])
         if isempty(YLims)
             ylim([(-MaxY-0.3*MaxY) (MaxY+0.3*MaxY)])
@@ -68,6 +68,6 @@ function [stats] = plot_BlandAltman(X1,X2,Type,XLims,YLims,lgnd,XTitle,YTitle,Ti
         xlim(XLims);
         stats=[mean(X2p) Dev];
         grid on
-        box on
+        %box on
     end
 end

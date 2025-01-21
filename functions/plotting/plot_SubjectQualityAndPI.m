@@ -39,15 +39,15 @@ function [] = plot_SubjectQualityAndPI(ResCell,ExCell,thresh,ResSlope,PIs,vararg
             end
             plot([0 maxX],[PIs(i-3) PIs(i-3)],'r-')
             if i==4
-            lgnd=legend('Data','p_{tf}(d)=p_{tc}d+\beta','\mu(p_{pi})');
-            set(lgnd,'Location','NorthEast','FontSize',FSs)
+            %lgnd=legend('Data','p_{tf}(d)=p_{tc}d+\beta','\mu(p_{pi})');
+            %set(lgnd,'Location','NorthEast','FontSize',FSs)
             end
             if length(varargin)==1
                 DF=varargin{1};
                 scatter([DF(i-3,1) DF(i-3,3)],[DF(i-3,2) DF(i-3,4)],'MarkerFaceColor','g','MarkerFaceAlpha',0.8,'MarkerEdgeAlpha',0)
                 if i==4
-                    lgnd=legend('Data','p_{tf}(d)=p_{tc}d+\beta','\mu(p_{pi})','x_{p} and x_{d}');
-                    set(lgnd,'Location','NorthEast','FontSize',FSs)
+                    %lgnd=legend('Data','p_{tf}(d)=p_{tc}d+\beta','\mu(p_{pi})','x_{p} and x_{d}');
+                    %set(lgnd,'Location','NorthEast','FontSize',FSs)
                 end
             end
         end
