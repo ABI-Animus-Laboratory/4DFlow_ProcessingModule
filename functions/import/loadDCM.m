@@ -27,8 +27,8 @@ BGPCdone=0; %0=do backgroun correction, 1=don't do background correction.
 autoFlow=1; %if you want automatically extracted BC's and flow profiles 0 if not.
 res=[];%'05';%'0.5''1.4'; %Only needed if you have multiple resolutions in your patient folder 
 % AND the resolution is named in the file folder; put in the resolution.
-Vendor='GE'; %Under construction, just leave as is, this can be developed as people share case data
-
+Vendor='SH'; %Under construction, just leave as is, this can be developed as people share case data
+UPSMP=2;
 %Age=str2num(INFO.PatientAge(2:3));
 %Sex={INFO.PatientSex};
 %Weight=INFO.PatientWeight;
@@ -48,51 +48,18 @@ set(handles.TextUpdate,'String','Loading .DCM Data'); drawnow;
 %directory
 %Returns the folder files names for each x,y,z, and mag. Can also input
 %manually.
-
-[Anatpath,APpath,LRpath,SIpath] = retFlowFolders(directory,Vendor,res);
-%Load each velocity (raw phase) and put into phase matrix
-[VAP,INFO] = shuffleDCM3(APpath,0);
-[a,c,b,d]=size(VAP);
-v=zeros([a,c,b,3,d],'single');
-v(:,:,:,1,:)=1.*squeeze(VAP(:,:,:,:));
-clear VAP
-VENC=single(INFO.Private_0019_10cc); %This is for GE scanners, maybe not others?
-%Scale=INFO.Private_0019_10e2;
-
-set(handles.TextUpdate,'String','Loading .DCM Data 20%'); drawnow;
-[VLR,~] = shuffleDCM3(LRpath,0);
-v(:,:,:,2,:)=1.*squeeze(VLR(:,:,:,:));
-clear VLR
-set(handles.TextUpdate,'String','Loading .DCM Data 40%'); drawnow;
-[VSI,~] = shuffleDCM3(SIpath,0);
-v(:,:,:,3,:)=1.*squeeze(VSI(:,:,:,:));
-clear VSI
-set(handles.TextUpdate,'String','Loading .DCM Data 60%'); drawnow;
-
-% Convert to velocity
-v = ((2*(v-(-VENC))/(VENC-(-VENC))) - 1) * VENC; %range values to VENCs
+if strcmp(Vendor,'GE')
+    [MAG,v,VENC,INFO,filetype,nframes,timeres,res,matrix,slicespace,VoxDims] = loadGEDCM(handles,directory,Vendor,res,UPSMP);
+    v = ((2*(v-(-VENC))/(VENC-(-VENC))) - 1) * VENC; %range values to VENCs
+else
+    [MAG,v,VENC,INFO,filetype,nframes,timeres,res,matrix,slicespace,VoxDims,Vs] = loadSHDCM(handles,directory,UPSMP);
+    v = (((v-Vs(1))/Vs(2)) - 0.5) * VENC; %range values to VENCs
+    v(:,:,:,3,:)=-single(1).*v(:,:,:,3,:);
+end
+% Convert velocity
 vMean = mean(v,5);
 clear maxx minn
-set(handles.TextUpdate,'String','Loading .DCM Data 80%'); drawnow;
-
-%Load MAGnitude image
-[MAG,~] = shuffleDCM3(Anatpath,0);
-MAG = mean(MAG,4);
 set(handles.TextUpdate,'String','Loading .DCM Data 100%'); drawnow;
-
-filetype = 'dcm';
-nframes = INFO.CardiacNumberOfImages; %number of reconstructed frames
-timeres = INFO.NominalInterval/nframes; %temporal resolution (ms)
-res = INFO.PixelSpacing(1); %spatial res (mm) (ASSUMED ISOTROPIC IN PLANE)
-if strcmp('GE',Vendor)
-    slicespace=INFO.SpacingBetweenSlices;
-elseif strcmp('Siemens',Vendor)
-    slicespace=INFO.SliceThickness;
-end
-matrix(1) = INFO.Rows; %number of pixels in rows
-matrix(2) = INFO.Columns;
-matrix(3) = length(MAG(1,1,:)); %number of slices
-VoxDims=[res res slicespace];
 %% Import Complex Difference
 set(handles.TextUpdate,'String','Loading Complex Difference Data'); drawnow;
 timeMIP = calc_angio(MAG, vMean, VENC);
@@ -123,8 +90,13 @@ UPthresh = 0.8; %max upper threshold when creating Sval curvature plot
 SMf = 10;
 shiftHM_flag = 1; %flag to shift max curvature by FWHM
 medFilt_flag = 1; %flag for median filtering of CD image
-[~,segment] = slidingThreshold(timeMIP,step,UPthresh,SMf,shiftHM_flag,medFilt_flag);
-areaThresh = round(sum(segment(:)).*0.005); %minimum area to keep
+SEG=dir(strcat(directory,'\*.nii'));
+if ~isempty(SEG)>0 && UPSMP==2
+    segment = logical(niftiread(fullfile(directory,SEG(1).name)));
+else
+    [~,segment] = slidingThreshold(timeMIP,step,UPthresh,SMf,shiftHM_flag,medFilt_flag);
+end
+areaThresh = round(sum(segment(:)).*0.002); %SD 0.005OG; %minimum area to keep
 conn = 6; %connectivity (i.e. 6-pt)
 segment = bwareaopen(segment,areaThresh,conn); %inverse fill holes
 % save raw (cropped) images to imageData structure (for Visual Tool)
@@ -137,7 +109,7 @@ imageData.Header = INFO;
 %% Feature Extraction
 % Get trim and create the centerline data
 sortingCriteria = 3; %sorts branches by junctions/intersects 
-spurLength = 8; %minimum branch length (removes short spurs)
+spurLength = 5; %minimum branch length (removes short spurs)
 [~,~,branchList,~] = feature_extraction(sortingCriteria,spurLength,vMean,segment,handles);
 
 %% You can load another segmentation here if you want which will overlap on images
