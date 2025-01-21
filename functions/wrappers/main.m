@@ -5,13 +5,13 @@
 % This function is designed to run assuming you store your data in BIDS 
 % format. If not, modify to run a folder or what not, BIDS is much easier
 clear;clc;
-path2bids='C:\Users\sdem348\Desktop\testdata';
+path2bids='C:\Users\sdem348\Desktop\HERMRI';
 params=init_params(path2bids);
 params.SaveData=1;%Save Interim Data
 params.PltFlag=1; %Make plots
-params.PWV=[1 1 1 1 1 1]; %Compute all PWVs
+params.PWV=[1 1 1 1 1 1 1 1 1]; %Compute all PWVs
 Results=struct;
-for i=1:1
+for i=12:20
     subject=strcat('sub-',num2str(i,'%03.0f'));
     params.subject=subject;
     fprintf(strcat('Now Processing Case:',num2str(i),'\n'))
@@ -24,20 +24,23 @@ for i=1:1
         [Area] = enc_VesArea(data_struct,Labels,path2data,params);
         [time,Flow,FlowErrVes]=enc_HQVesselFlows(data_struct,Labels,params);
         [PWV,~,~]=enc_PWV(data_struct,PI_scat,time,Labels,params);
+        [AllVals,Qvel] =enc_VelocityArea(data_struct,PI_scat,path2data,params);
+        
+        Results.Vel(i,:)=AllVals; % mean max, mean veloctiy, and area
         Results.Area(i,:)=Area; %Landmark cross sectional area, 
         Results.PI(i,:)=[globPI PITC(end,:) PI]; %Landmark standard pulsatility
-        Results.Flow(i,:)=[mean(LocFlows)]; %Landmark vessel flow data
+        Results.Flow(i,:)=[mean(LocFlows)]; %Landmark vessel mean flow data
         Results.Flow2{i}=LocFlows; %Landmark vessel flow data
         Results.Flow2err{i}=FlowErr; %Landmark vessel flow data
         Results.PITC(i,:)=PITC(1,:); %pulsatility tranmission
         Results.PITCerr(i,:)=PITC(4,:); %pulsatility transmission slope CI (1sigma)
         Results.DF(i,:)=DF; %damping factor
+        Results.D(i,:)=D; %damping factor
         Results.PWV(i,:)=PWV;%pulse wave velocity (time consuming)
     else
     end
 end
 save(fullfile(params.data_dir,'derivatives\QVT\population\Results.mat'),"Results")
-
 % %% Running 
 % %==================================================
 % % Running a single instance of the post processing for PI, PI_DF, PI_TC, PWV is below
