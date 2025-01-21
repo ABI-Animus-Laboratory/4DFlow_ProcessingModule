@@ -19,7 +19,10 @@ Statistics and Machine Learning Toolbox (for kmeans)
 Currently, .hdf5 and .dat formatting is not supported with the PITC measurement and only loading DICOMS allow this functionality. Resolutions can now be anisotropic.
 * If using Matlab 2023a and beyond, the xml write will not work, so be careful if you are using the regular QVT save function to store flow data in the regular excel.  
 ## Usage
-Run paramMap as per QVT, and follow standard background correction. If you are loading DICOMS, the following interactive table will load once the data  has been processed, fill in the table appropriately. For the $pi_{tc}$ analysis, a selected number of cells must be filled (P1:P4) (refer to Figure below for numbering):
+Run paramMap as per QVT, and follow standard background correction. If you are loading DICOMS,
+Be sure to open function\import\loadDCM and in "initialisation", specify the vendor, and if you want to upsample the data (currently linear interp) and change any other params.
+
+ the following interactive table will load once the data  has been processed, fill in the table appropriately. For the $pi_{tc}$ analysis, a selected number of cells must be filled (P1:P4) (refer to Figure below for numbering):
  * **P1:** Each root vessel value must be input (ICAs and BA). Typically, only one value is needed in each root.
  * **P2:** If, for instance, the carotid siphon folds on itself and causes non-physiological branches in QVT, a connected vessel number array can be entered.
  * **P3:** In the ``Exclude'' row, communicating arteries must be included; otherwise, the algorithm will connect vessels from the ICA to the PCAs. Other vessels can be inputted (as an array format) to stop the connectivity algorithm if desired. 
