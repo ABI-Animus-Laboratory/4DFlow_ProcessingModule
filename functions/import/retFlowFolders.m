@@ -1,4 +1,4 @@
-function [Anatpath,APpath,LRpath,SIpath] = retFlowFolders(path2flow,Vendor,varargin)
+function [Anatpath,APpath,LRpath,SIpath] = retFlowFolders(path2flow,varargin)
 % retFlowFolders looks for the variable folder naming of 4Dflow data
 %
 % path2flow: Path to source directory with all DICOM folders for a
@@ -33,49 +33,42 @@ function [Anatpath,APpath,LRpath,SIpath] = retFlowFolders(path2flow,Vendor,varar
         strcat('.*FLOW.*(',res,').*LR.*')};
     Anatpath=[];APpath=[];LRpath=[];SIpath=[];
     %% GE Methods
-    if strcmp('GE',Vendor)
-        for i=1:length(TestDir)
-            Exp = TestDir(i).name;
+    for i=1:length(TestDir)
+        Exp = TestDir(i).name;
 
-            [match] = regexp(Exp,RegExp{1},'tokens');
-            try
-                if length(match{1}{1}) == length(res)
-                    if strcmp(match{1},res) 
-                        Anatpath=fullfile(path2flow,Exp);
-                    elseif isempty(Anatpath)
-                        Anatpath=fullfile(path2flow,Exp);
-                    end
-                end
-            end
-            [match] = regexp(Exp,RegExp{2},'tokens');
-            if length(match) == 1
-                if strcmp(match{1},res)
-                    APpath=fullfile(path2flow,Exp);
-                elseif isempty(APpath)
-                    APpath=fullfile(path2flow,Exp);
-                end
-            end
-            [match] = regexp(Exp,RegExp{3},'tokens');
-            if length(match) == 1
-                if strcmp(match{1},res)
-                    SIpath=fullfile(path2flow,Exp);
-                elseif isempty(SIpath)
-                    SIpath=fullfile(path2flow,Exp);
-                end
-            end
-            [match] = regexp(Exp,RegExp{4},'tokens');
-            if length(match) == 1
-                if strcmp(match{1},res)
-                    LRpath=fullfile(path2flow,Exp);
-                elseif isempty(LRpath)
-                    LRpath=fullfile(path2flow,Exp);
+        [match] = regexp(Exp,RegExp{1},'tokens');
+        try
+            if length(match{1}{1}) == length(res)
+                if strcmp(match{1},res) 
+                    Anatpath=fullfile(path2flow,Exp);
+                elseif isempty(Anatpath)
+                    Anatpath=fullfile(path2flow,Exp);
                 end
             end
         end
-    elseif strcmp('Siemens',Vendor)
-        Anatpath=fullfile(path2flow,'M1');
-        APpath=fullfile(path2flow,'P3');
-        LRpath=fullfile(path2flow,'P2');
-        SIpath=fullfile(path2flow,'P1');%P3 -> AP, P2 -> RL, P1 -> SI
+        [match] = regexp(Exp,RegExp{2},'tokens');
+        if length(match) == 1
+            if strcmp(match{1},res)
+                APpath=fullfile(path2flow,Exp);
+            elseif isempty(APpath)
+                APpath=fullfile(path2flow,Exp);
+            end
+        end
+        [match] = regexp(Exp,RegExp{3},'tokens');
+        if length(match) == 1
+            if strcmp(match{1},res)
+                SIpath=fullfile(path2flow,Exp);
+            elseif isempty(SIpath)
+                SIpath=fullfile(path2flow,Exp);
+            end
+        end
+        [match] = regexp(Exp,RegExp{4},'tokens');
+        if length(match) == 1
+            if strcmp(match{1},res)
+                LRpath=fullfile(path2flow,Exp);
+            elseif isempty(LRpath)
+                LRpath=fullfile(path2flow,Exp);
+            end
+        end
     end
 end

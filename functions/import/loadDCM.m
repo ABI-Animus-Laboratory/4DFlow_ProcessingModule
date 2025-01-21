@@ -23,33 +23,20 @@ function [nframes,matrix,res,timeres,VENC,area_val,diam_val,flowPerHeartCycle_va
 %% Initialization
 clc
 BGPCdone=0; %0=do backgroun correction, 1=don't do background correction.
-%VENC = 800; %may change depending on participant
-autoFlow=1; %if you want automatically extracted BC's and flow profiles 0 if not.
-res=[];%'05';%'0.5''1.4'; %Only needed if you have multiple resolutions in your patient folder 
+autoFlow=1; %if you want to label and do QVT+ processing
+res=[];%'05';%'0.5''1.4'; %Only needed if you have multiple resolutions in your patient folder, 
 % AND the resolution is named in the file folder; put in the resolution.
-Vendor='SH'; %Under construction, just leave as is, this can be developed as people share case data
-UPSMP=2;
-%Age=str2num(INFO.PatientAge(2:3));
-%Sex={INFO.PatientSex};
-%Weight=INFO.PatientWeight;
-%RepT=INFO.RepetitionTime;
-%EchoT=INFO.EchoTime;
-%Bandwidth=INFO.PixelBandwidth;
-%ImFreq=INFO.ImagingFrequency;
-%FlipA=INFO.FlipAngle;
-%HR=INFO.HeartRate;
-%VENC=INFO.Private_0019_10cc; %For GE only?
-%Scale=INFO.Private_0019_10e2;
+UPSMP=2; %Set to 1 if no umpsampling, or 2 if upsampling (double resolution).
+%'SH' Siemens Healthineers, 'GE' General Electric
+Vendor='GE'; %Under construction, just leave as is, this can be developed as people share case data
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%% Don't change below %%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%Or do
 addpath(pwd)
 set(handles.TextUpdate,'String','Loading .DCM Data'); drawnow;
-%directory
-%Returns the folder files names for each x,y,z, and mag. Can also input
-%manually.
 if strcmp(Vendor,'GE')
-    [MAG,v,VENC,INFO,filetype,nframes,timeres,res,matrix,slicespace,VoxDims] = loadGEDCM(handles,directory,Vendor,res,UPSMP);
+    [MAG,v,VENC,INFO,filetype,nframes,timeres,res,matrix,slicespace,VoxDims] = loadGEDCM(handles,directory,res,UPSMP);
     v = ((2*(v-(-VENC))/(VENC-(-VENC))) - 1) * VENC; %range values to VENCs
 else
     [MAG,v,VENC,INFO,filetype,nframes,timeres,res,matrix,slicespace,VoxDims,Vs] = loadSHDCM(handles,directory,UPSMP);
@@ -68,7 +55,7 @@ back = zeros(size(vMean),'single');
 if ~BGPCdone
     set(handles.TextUpdate,'String','Phase Correction with Polynomial'); drawnow;
     [poly_fitx,poly_fity,poly_fitz] = background_phase_correction(MAG,vMean(:,:,:,1),vMean(:,:,:,2),vMean(:,:,:,3));
-    disp('Correcting data with polynomial');
+    %disp('Correcting data with polynomial');
     xrange = single(linspace(-1,1,size(MAG,1)));
     yrange = single(linspace(-1,1,size(MAG,2)));
     zrange = single(linspace(-1,1,size(MAG,3)));
@@ -85,15 +72,15 @@ if ~BGPCdone
 end
 %% Find optimum global threshold for total branch segmentation
 set(handles.TextUpdate,'String','Segmenting and creating Tree'); drawnow;
-step = 0.001; %step size for sliding threshold
-UPthresh = 0.8; %max upper threshold when creating Sval curvature plot
-SMf = 10;
-shiftHM_flag = 1; %flag to shift max curvature by FWHM
-medFilt_flag = 1; %flag for median filtering of CD image
-SEG=dir(strcat(directory,'\*.nii'));
+SEG=dir(strcat(directory,'\*CD.nii')); %Identifies if an external segmentation is present, otherwise uses sliding threshold.
 if ~isempty(SEG)>0 && UPSMP==2
     segment = logical(niftiread(fullfile(directory,SEG(1).name)));
 else
+    step = 0.001; %step size for sliding threshold
+    UPthresh = 0.8; %max upper threshold when creating Sval curvature plot
+    SMf = 10;
+    shiftHM_flag = 1; %flag to shift max curvature by FWHM
+    medFilt_flag = 1; %flag for median filtering of CD image
     [~,segment] = slidingThreshold(timeMIP,step,UPthresh,SMf,shiftHM_flag,medFilt_flag);
 end
 areaThresh = round(sum(segment(:)).*0.002); %SD 0.005OG; %minimum area to keep

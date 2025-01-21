@@ -95,7 +95,6 @@ function [MAG,v,VENC,INFO,filetype,nframes,timeres,res,matrix,slicespace,VoxDims
 
     %Upsample if requested
     [a,c,b]=size(MAG);
-    UPSMP=2;
     if UPSMP==2
         set(handles.TextUpdate,'String','Upsampling...'); drawnow;
         [Xq,Yq,Zq] = meshgrid((1:0.5:(c)),(1:0.5:(a)),(1:0.5:(b))); %these are the interpolation steps within the indices
@@ -135,5 +134,4 @@ function [MAG,v,VENC,INFO,filetype,nframes,timeres,res,matrix,slicespace,VoxDims
     vMIN=INFO.SmallestImagePixelValue;
     vMAX=INFO.LargestImagePixelValue;
     Vs=single([vMIN vMAX]);
-    fprintf(strcat('\n VENC=',num2str(Vs(1),'%03.0f'),'max',num2str(Vs(1),'%03.0f')))
 end
