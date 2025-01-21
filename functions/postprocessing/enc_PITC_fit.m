@@ -58,7 +58,7 @@ function [PITC,globalPI] = enc_PITC_fit(PI_scat,path2data,params)
                 elseif length(EPI(:,1))==1
                     EndPIPlot(i,:)=EPI;
                 else
-                    EndPIPlot(i,:)=nan;
+                    EndPIPlot(i,:)=[nan nan];
                 end
             end
             DF(1:3,3)=[EndPIPlot(1,1);EndPIPlot(2,1);EndPIPlot(3,1)];
@@ -72,6 +72,7 @@ function [PITC,globalPI] = enc_PITC_fit(PI_scat,path2data,params)
     if params.SaveData==1
         if params.PltFlag==1
             saveas(gcf,fullfile(path2data,'PITC_plot.jpg'))
+            fprintf('\n saved data')
             close
         end
         save(fullfile(path2data,'PITCprocessed.mat'),'PITC')

@@ -26,16 +26,33 @@ function [PWV,SE,Raw,Ex]=enc_PWV_XCor(Vals,data_struct,Labels,time,tag,A,params,
         F(VesLoc,:)=[];
         ttu=[];
         %ttu(1,1)=0;
-        if tag==1
+        % if tag==1
+        %     [row,~]=find(Q<params.thresh); %Ignore low quality points
+        %     D(row,:)=[];
+        %     Q(row,:)=[];
+        %     F(row,:)=[];
+        %     Q=(Q-params.thresh)./(4-params.thresh);
+        %     W=Q;
+        % else
+        %     A(VesLoc,:)=[];
+        %     W=A;
+        % end
+        %% Weights preprocessing
+        if tag==0 %Equal weight
+            W=ones(size(Q));
+        elseif tag==1
             [row,~]=find(Q<params.thresh); %Ignore low quality points
             D(row,:)=[];
             Q(row,:)=[];
             F(row,:)=[];
             Q=(Q-params.thresh)./(4-params.thresh);
             W=Q;
-        else
+        elseif tag==2 %Use Bjornfot weights
             A(VesLoc,:)=[];
+            A=A(:)./max(A); % Normalise Bjornfoot Weights
             W=A;
+        else
+            fprintf('\n Unknown weight function pointer\n')
         end
         %% This is the Xcor for the 
         for csa = 1:length(D)
@@ -64,12 +81,8 @@ function [PWV,SE,Raw,Ex]=enc_PWV_XCor(Vals,data_struct,Labels,time,tag,A,params,
         [mdl,~] = fit_linXYData(D,ttu,W);
         pwv = 1./table2array(mdl.Coefficients(2,1));
         SE = 1./table2array(mdl.Coefficients(2,2));
-        if (pwv > 0)% && (pwv < 30)
-            PWV = pwv;
-        else
-            PWV = -1;
-        end
+        PWV = pwv;
     else
-        PWV=-1;SE=0;Raw=[0,0,0];Ex=[0,0,0];
+        PWV=NaN;SE=0;Raw=[0,0,0];Ex=[0,0,0];
     end
 end
